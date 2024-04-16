@@ -1,0 +1,29 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  HTTP_PROXY: http://172.16.0.5:1080
+  HTTPS_PROXY: http://172.16.0.5:1080
+  DEPLOYNAME: activepieces
+  NAMESPACE: default
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Helm install
+        run: |
+          cd $GITHUB_WORKSPACE && unset HTTP_PROXY && unset HTTPS_PROXY
+          helm upgrade $DEPLOYNAME . \
+            --install \
+            --cleanup-on-fail \
+            --timeout 600s \
+            --wait -n $NAMESPACE
